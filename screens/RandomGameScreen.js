@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Alert, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton";
 import {
@@ -16,7 +26,7 @@ import {
   shadowRadius,
 } from "../utils/layoutConstants";
 
-import { STORAGE_KEY } from "../services/rawgApi"; // <-- importamos la constante
+import { STORAGE_KEY } from "../services/rawgApi";
 
 const borderColorByStatus = {
   pendiente: "#FFA500",
@@ -50,6 +60,7 @@ export default function RandomGameScreen({ route, navigation }) {
   ).sort();
 
   const pickRandomGame = () => {
+    setShowPlatformMenu(false); // <-- cerrar menú al elegir juego
     let pendingGames = games.filter((g) => g.estado === "pendiente");
     if (selectedPlatform !== "todas") {
       pendingGames = pendingGames.filter((g) =>
@@ -67,85 +78,90 @@ export default function RandomGameScreen({ route, navigation }) {
   const formatPlatform = (name) => name.replace(/-/g, " ");
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Juego Aleatorio</Text>
+    <TouchableWithoutFeedback onPress={() => setShowPlatformMenu(false)}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Juego Aleatorio</Text>
 
-      {randomGame ? (
-        <View
-          style={[
-            styles.gameCard,
-            { borderColor: borderColorByStatus[randomGame.estado] || "#aaa" },
-          ]}
-        >
-          {randomGame.caratula && (
-            <Image source={{ uri: randomGame.caratula }} style={styles.cover} />
-          )}
-          <Text style={styles.name}>{randomGame.nombre}</Text>
-          {randomGame.plataformas?.length > 0 && (
-            <Text style={styles.platforms}>
-              Plataformas: {randomGame.plataformas.map(formatPlatform).join(", ")}
-            </Text>
-          )}
-          <Text style={styles.status}>Estado: {randomGame.estado}</Text>
-        </View>
-      ) : (
-        <Text>No se ha seleccionado ningún juego todavía.</Text>
-      )}
-
-      <View style={styles.buttonContainer}>
-        <MyButton
-          title="Elegir juego aleatorio"
-          onPress={pickRandomGame}
-          style={styles.button}
-        />
-        <MyButton
-          title="Volver"
-          onPress={() => navigation.goBack()}
-          style={styles.button}
-        />
-      </View>
-
-      {/* Selector de plataforma */}
-      <TouchableOpacity
-        style={styles.platformSelector}
-        onPress={() => setShowPlatformMenu(!showPlatformMenu)}
-      >
-        <Text style={styles.platformSelectorText}>
-          Plataforma: {selectedPlatform}
-        </Text>
-      </TouchableOpacity>
-
-      {showPlatformMenu && (
-        <View style={styles.platformMenu}>
-          {["todas", ...availablePlatforms].map((platform) => (
-            <TouchableOpacity
-              key={platform}
-              style={[
-                styles.platformCell,
-                selectedPlatform === platform && styles.platformCellActive,
-              ]}
-              onPress={() => {
-                setSelectedPlatform(platform);
-                setShowPlatformMenu(false);
-              }}
-            >
-              <Text
-                style={[
-                  styles.platformCellText,
-                  selectedPlatform === platform &&
-                    styles.platformCellTextActive,
-                ]}
-              >
-                {platform.replace(/-/g, " ")}
+        {randomGame ? (
+          <View
+            style={[
+              styles.gameCard,
+              { borderColor: borderColorByStatus[randomGame.estado] || "#aaa" },
+            ]}
+          >
+            {randomGame.caratula && (
+              <Image source={{ uri: randomGame.caratula }} style={styles.cover} />
+            )}
+            <Text style={styles.name}>{randomGame.nombre}</Text>
+            {randomGame.plataformas?.length > 0 && (
+              <Text style={styles.platforms}>
+                Plataformas: {randomGame.plataformas.map(formatPlatform).join(", ")}
               </Text>
-            </TouchableOpacity>
-          ))}
+            )}
+            <Text style={styles.status}>Estado: {randomGame.estado}</Text>
+          </View>
+        ) : (
+          <Text>No se ha seleccionado ningún juego todavía.</Text>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <MyButton
+            title="Elegir juego aleatorio"
+            onPress={pickRandomGame}
+            style={styles.button}
+          />
+          <MyButton
+            title="Volver"
+            onPress={() => {
+              setShowPlatformMenu(false); // <-- cerrar menú al volver
+              navigation.goBack();
+            }}
+            style={styles.button}
+          />
         </View>
-      )}
-    </ScrollView>
+
+        {/* Selector de plataforma */}
+        <TouchableOpacity
+          style={styles.platformSelector}
+          onPress={() => setShowPlatformMenu(!showPlatformMenu)}
+        >
+          <Text style={styles.platformSelectorText}>
+            Plataforma: {selectedPlatform}
+          </Text>
+        </TouchableOpacity>
+
+        {showPlatformMenu && (
+          <View style={styles.platformMenu}>
+            {["todas", ...availablePlatforms].map((platform) => (
+              <TouchableOpacity
+                key={platform}
+                style={[
+                  styles.platformCell,
+                  selectedPlatform === platform && styles.platformCellActive,
+                ]}
+                onPress={() => {
+                  setSelectedPlatform(platform);
+                  setShowPlatformMenu(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.platformCellText,
+                    selectedPlatform === platform && styles.platformCellTextActive,
+                  ]}
+                >
+                  {platform.replace(/-/g, " ")}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 }
 
+// --- estilos se mantienen igual ---
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
