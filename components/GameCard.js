@@ -9,6 +9,13 @@ import {
   titleFontSize,
   textFontSize,
   smallTextFontSize,
+  filterMenuWidth,
+  shadowOffsetY,
+  shadowRadius,
+  filterOptionFontSize,
+  windowWidth,
+  windowHeight,
+  buttonHeight,
 } from "../utils/layoutConstants";
 
 const borderColorByStatus = {
@@ -68,34 +75,34 @@ export default function GameCard({
           onPress={() => onDelete(game.id)}
           style={[styles.button, { backgroundColor: "#e53935" }]}
         />
-      </View>
 
-      {activeMenuId === game.id && (
-        <View style={styles.estadoMenu}>
-          {["pendiente", "jugando", "terminado"].map((estadoOpcion) => (
-            <TouchableOpacity
-              key={estadoOpcion}
-              style={[
-                styles.estadoOpcion,
-                game.estado === estadoOpcion && styles.estadoOpcionActivo,
-              ]}
-              onPress={() => {
-                onChangeStatus(game.id, estadoOpcion);
-                setActiveMenuId(null);
-              }}
-            >
-              <Text
+        {activeMenuId === game.id && (
+          <View style={styles.estadoMenu}>
+            {["pendiente", "jugando", "terminado"].map((estadoOpcion) => (
+              <TouchableOpacity
+                key={estadoOpcion}
                 style={[
-                  styles.estadoTexto,
-                  game.estado === estadoOpcion && styles.estadoTextoActivo,
+                  styles.estadoOpcion,
+                  game.estado === estadoOpcion && styles.estadoOpcionActivo,
                 ]}
+                onPress={() => {
+                  onChangeStatus(game.id, estadoOpcion);
+                  setActiveMenuId(null);
+                }}
               >
-                {estadoOpcion.charAt(0).toUpperCase() + estadoOpcion.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+                <Text
+                  style={[
+                    styles.estadoTexto,
+                    game.estado === estadoOpcion && styles.estadoTextoActivo,
+                  ]}
+                >
+                  {estadoOpcion.charAt(0).toUpperCase() + estadoOpcion.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -142,10 +149,19 @@ const styles = StyleSheet.create({
   },
 
   estadoMenu: {
-    marginTop: cardMargin,
-    backgroundColor: "#f1f1f1",
-    borderRadius: cardBorderRadius,
-    paddingVertical: cardPadding * 0.5,
+    position: "absolute",
+    bottom: buttonHeight * 1.3, // igual que el filtro
+    left: paddingContainer * 0.5,
+    backgroundColor: "#fff",
+    borderRadius: windowWidth * 0.02,
+    elevation: 5,
+    paddingVertical: windowHeight * 0.02,
+    width: filterMenuWidth,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: shadowOffsetY },
+    shadowOpacity: 0.3,
+    shadowRadius: shadowRadius,
+    zIndex: 20,
   },
 
   estadoOpcionActivo: {
@@ -153,19 +169,20 @@ const styles = StyleSheet.create({
     borderRadius: cardBorderRadius * 0.6, // antes 4
   },
 
-  estadoOpcionActivo: {
-    backgroundColor: "#6200ee",
-    borderRadius: 4,
+  estadoOpcion: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
 
   estadoTexto: {
-    fontSize: textFontSize, // antes 16
+    fontSize: filterOptionFontSize, // antes 16
     color: "#333",
   },
 
   estadoTextoActivo: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: filterOptionFontSize,
   },
 
   platforms: {

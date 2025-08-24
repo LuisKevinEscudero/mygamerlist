@@ -24,8 +24,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
 
-const STORAGE_KEY = "@mi-lista-gamer/games";
-const RAWG_API_KEY = "a9e27fe863274d19bd2c795b28943d8e";
+import { STORAGE_KEY, RAWG_API_KEY } from "../services/rawgApi";
 
 export default function AddGameScreen({ navigation }) {
   const [gameName, setGameName] = useState("");
