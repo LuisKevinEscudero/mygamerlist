@@ -317,14 +317,19 @@ export default function GameListScreen({ navigation }) {
       </View>
 
       <View style={styles.buttonContainer}>
+        {/* Botón añadir */}
         <MyButton
           title="Añadir juego"
           onPress={() => navigation.navigate("AddGame")}
           style={styles.smallButton}
         />
+
+        {/* Botón aleatorio */}
         <MyButton
           title="Juego aleatorio"
-          onPress={() => navigation.navigate("RandomGame")}
+          onPress={() =>
+            navigation.navigate("RandomGame", { platform: selectedPlatform })
+          }
           style={styles.smallButton}
         />
 
