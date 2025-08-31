@@ -19,12 +19,16 @@ import {
   cardMargin,
   windowHeight,
   cardPadding
-} from "../utils/layoutConstants";
+} from "../utils/layoutConstants.js";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
 
-import { STORAGE_KEY, RAWG_API_KEY } from "../services/rawgApi";
+import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import { ADS } from "../utils/adConstants.js";
+
+const STORAGE_KEY = "@mi-lista-gamer/games";
+const RAWG_API_KEY = "a9e27fe863274d19bd2c795b28943d8e";
 
 export default function AddGameScreen({ navigation }) {
   const [gameName, setGameName] = useState("");
@@ -118,7 +122,7 @@ export default function AddGameScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Añadir nuevo juego</Text>
+       <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"

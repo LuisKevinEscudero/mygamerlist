@@ -14,8 +14,13 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import GameCard from "../components/GameCard"; // Asegúrate que la ruta es correcta
-import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
+import GameCard from "../components/GameCard.js"; // Asegúrate que la ruta es correcta
+import MyButton from "../components/MyButton.js"; // ajusta la ruta si es distinta
+
+//import AdBanner from "../components/AdBanner";
+import AdBanner from "../banners/AdBanner.js";
+import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import { ADS } from "../utils/adConstants.js";
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
 
@@ -184,7 +189,8 @@ export default function GameListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Lista de Juegos</Text>
+      {/* Banner estático placeholder con AdMob */}
+      <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
 
       {/* Menú principal */}
       {showMainFilterMenu && (
@@ -300,17 +306,22 @@ export default function GameListScreen({ navigation }) {
         <FlatList
           data={filteredGames}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <GameCard
-              game={item}
-              onChangeStatus={handleChangeStatus}
-              onDelete={handleDelete}
-              activeMenuId={activeMenuId}
-              setActiveMenuId={setActiveMenuId}
-              setShowFilterMenu={setShowFilterMenu} // si lo necesitas
-              cerrarMenusFiltro={cerrarMenusFiltro}
-            />
-          )}
+          renderItem={({ item, index }) => {
+            if ((index + 1) % 6 === 0) {
+              return (
+                <AdBanner adUnitID={ADS.BANNER_GAMECARD}/>
+              );
+            }
+            return (
+              <GameCard
+                game={item}
+                onChangeStatus={handleChangeStatus}
+                onDelete={handleDelete}
+                activeMenuId={activeMenuId}
+                setActiveMenuId={setActiveMenuId}
+              />
+            );
+          }}
           ListEmptyComponent={<Text>No tienes juegos guardados.</Text>}
           contentContainerStyle={{ paddingBottom: 80 }}
         />

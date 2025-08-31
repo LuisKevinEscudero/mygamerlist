@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import MyButton from "./MyButton";
+import MyButton from "./MyButton.js";
 import {
   paddingContainer,
   cardBorderRadius,
@@ -16,7 +16,7 @@ import {
   windowWidth,
   windowHeight,
   buttonHeight,
-} from "../utils/layoutConstants";
+} from "../utils/layoutConstants.js";
 
 const borderColorByStatus = {
   pendiente: "#FFA500", // naranja

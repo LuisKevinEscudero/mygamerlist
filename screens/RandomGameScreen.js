@@ -11,7 +11,7 @@ import {
   Keyboard,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import MyButton from "../components/MyButton";
+import MyButton from "../components/MyButton.js";
 import {
   paddingContainer,
   titleFontSize,
@@ -24,9 +24,12 @@ import {
   smallTextFontSize,
   shadowOffsetY,
   shadowRadius,
-} from "../utils/layoutConstants";
+} from "../utils/layoutConstants.js";
 
-import { STORAGE_KEY } from "../services/rawgApi";
+const STORAGE_KEY = "@mi-lista-gamer/games";
+
+import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import { ADS } from "../utils/adConstants.js";
 
 const borderColorByStatus = {
   pendiente: "#FFA500",
@@ -80,7 +83,7 @@ export default function RandomGameScreen({ route, navigation }) {
   return (
     <TouchableWithoutFeedback onPress={() => setShowPlatformMenu(false)}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Juego Aleatorio</Text>
+         <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>
 
         {randomGame ? (
           <View

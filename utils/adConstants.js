@@ -1,0 +1,5 @@
+// adConstants.js
+export const ADS = {
+  BANNER_GAMECARD: "ca-app-pub-2080159768071634/8277814725",
+  BANNER_STATIC: "ca-app-pub-2080159768071634/6401642186",
+};
