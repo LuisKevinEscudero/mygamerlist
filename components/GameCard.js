@@ -67,7 +67,7 @@ export default function GameCard({
           title="Cambiar estado"
           onPress={() => {
             setActiveMenuId(activeMenuId === game.id ? null : game.id);
-            cerrarMenusFiltro(); // cerrar cualquier menú filtro abierto
+            if (cerrarMenusFiltro) cerrarMenusFiltro(); // ✅ evita el error
           }}
         />
         <MyButton

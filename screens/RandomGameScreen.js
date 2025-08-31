@@ -28,7 +28,8 @@ import {
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
 
-import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+//import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+
 import { ADS } from "../utils/adConstants.js";
 
 const borderColorByStatus = {
@@ -83,7 +84,7 @@ export default function RandomGameScreen({ route, navigation }) {
   return (
     <TouchableWithoutFeedback onPress={() => setShowPlatformMenu(false)}>
       <ScrollView contentContainerStyle={styles.container}>
-         <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>
+         {/*<AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>*/}
 
         {randomGame ? (
           <View
