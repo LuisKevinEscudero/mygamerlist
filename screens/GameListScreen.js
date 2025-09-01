@@ -192,7 +192,7 @@ export default function GameListScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* Banner estático placeholder con AdMob */}
-       <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
+      <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
 
       {/* Menú principal */}
       {showMainFilterMenu && (
@@ -278,29 +278,31 @@ export default function GameListScreen({ navigation }) {
       {/* Menú de plataformas */}
       {showPlatformMenu && (
         <View style={[styles.filterMenu, { bottom: buttonHeight * 2 + 20 }]}>
-          {["todas", ...availablePlatforms].map((platform) => (
-            <TouchableOpacity
-              key={platform}
-              style={[
-                styles.filterOption,
-                selectedPlatform === platform && styles.filterOptionActive,
-              ]}
-              onPress={() => {
-                setSelectedPlatform(platform);
-                setShowPlatformMenu(false);
-              }}
-            >
-              <Text
+          <ScrollView style={{ maxHeight: windowHeight * 0.4 }}>
+            {["todas", ...availablePlatforms].map((platform) => (
+              <TouchableOpacity
+                key={platform}
                 style={[
-                  styles.filterOptionText,
-                  selectedPlatform === platform &&
-                    styles.filterOptionTextActive,
+                  styles.filterOption,
+                  selectedPlatform === platform && styles.filterOptionActive,
                 ]}
+                onPress={() => {
+                  setSelectedPlatform(platform);
+                  setShowPlatformMenu(false);
+                }}
               >
-                {platform.replace(/-/g, " ")}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    styles.filterOptionText,
+                    selectedPlatform === platform &&
+                      styles.filterOptionTextActive,
+                  ]}
+                >
+                  {platform.replace(/-/g, " ")}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       )}
 
@@ -310,9 +312,7 @@ export default function GameListScreen({ navigation }) {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item, index }) => {
             if ((index + 1) % 6 === 0) {
-              return (
-                 <AdBanner adUnitID={ADS.BANNER_GAMECARD}/>
-              );
+              return <AdBanner adUnitID={ADS.BANNER_GAMECARD} />;
             }
             return (
               <GameCard
