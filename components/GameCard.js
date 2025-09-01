@@ -67,13 +67,14 @@ export default function GameCard({
           title="Cambiar estado"
           onPress={() => {
             setActiveMenuId(activeMenuId === game.id ? null : game.id);
-            if (cerrarMenusFiltro) cerrarMenusFiltro(); // ✅ evita el error
+            if (cerrarMenusFiltro) cerrarMenusFiltro();
           }}
+          style={styles.button} // 🔹 le damos flex también aquí
         />
         <MyButton
           title="Eliminar"
           onPress={() => onDelete(game.id)}
-          style={[styles.button, { backgroundColor: "#e53935" }]}
+          style={[styles.button, { backgroundColor: "#e53935" }]} // 🔹 mismo estilo base
         />
 
         {activeMenuId === game.id && (
@@ -129,7 +130,6 @@ const styles = StyleSheet.create({
 
   buttons: {
     flexDirection: "row",
-    justifyContent: "space-between",
   },
 
   cover: {

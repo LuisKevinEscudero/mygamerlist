@@ -28,7 +28,8 @@ import {
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
 
-import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+//import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
 
 import { ADS } from "../utils/adConstants.js";
 

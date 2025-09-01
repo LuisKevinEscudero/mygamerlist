@@ -17,8 +17,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import GameCard from "../components/GameCard.js"; // Asegúrate que la ruta es correcta
 import MyButton from "../components/MyButton.js"; // ajusta la ruta si es distinta
 
-import AdBanner from "../banners/AdBanner.js";
-import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+//import AdBanner from "../banners/AdBanner.js";
+import AdBanner from "../banners/AdBannerPlaceholder.js";
+//import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
 
 import { ADS } from "../utils/adConstants.js";
 
