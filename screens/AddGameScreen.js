@@ -24,7 +24,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
 
-//import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
+import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
 
 import { ADS } from "../utils/adConstants.js";
 
@@ -123,7 +123,7 @@ export default function AddGameScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-       {/* <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>*/}
+        <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"
