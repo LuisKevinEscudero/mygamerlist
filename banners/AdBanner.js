@@ -11,7 +11,7 @@ export default function AdBanner({ adUnitID }) {
       <View style={{ margin: 8, borderRadius: 12, overflow: "hidden" }}>
         <BannerAd
           unitId={unitId}
-          size={BannerAdSize.MEDIUM_RECTANGLE}
+          size={BannerAdSize.ADAPTIVE_BANNER} // 🔹 ahora se adapta al ancho de la pantalla
           requestOptions={{
             requestNonPersonalizedAdsOnly: false,
           }}
