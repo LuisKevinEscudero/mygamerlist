@@ -18,7 +18,7 @@ import {
   cardBorderRadius,
   cardMargin,
   windowHeight,
-  cardPadding
+  cardPadding,
 } from "../utils/layoutConstants.js";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -103,20 +103,30 @@ export default function AddGameScreen({ navigation }) {
       const storedGames = await AsyncStorage.getItem(STORAGE_KEY);
       const games = storedGames ? JSON.parse(storedGames) : [];
 
+      // 🔍 comprobar si ya existe (por nombre en minúsculas)
+      const alreadyExists = games.some(
+        (g) => g.nombre.toLowerCase() === gameName.trim().toLowerCase()
+      );
+
+      if (alreadyExists) {
+        Alert.alert("Aviso", "Este juego ya está en tu lista");
+        return; // 🚫 no guardamos nada
+      }
+
       const newGame = {
         id: Date.now(),
         nombre: gameName.trim(),
         estado: estado,
         caratula: caratula.trim(),
-        plataformas: plataformas, // 🆕 añadimos las plataformas al objeto
+        plataformas: plataformas,
       };
 
       games.push(newGame);
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(games));
 
       setGameName("");
-      setPlataformas([]); // 🆕 reseteamos plataformas
-      navigation.goBack(); // vuelve a la lista
+      setPlataformas([]);
+      navigation.goBack();
     } catch (e) {
       console.error("Error guardando juego:", e);
     }
@@ -124,7 +134,7 @@ export default function AddGameScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-        <AdBannerStatic adUnitID={ADS.BANNER_STATIC}/>
+      <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"
