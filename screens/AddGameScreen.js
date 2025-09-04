@@ -32,6 +32,9 @@ import { ADS } from "../utils/adConstants.js";
 const STORAGE_KEY = "@mi-lista-gamer/games";
 const RAWG_API_KEY = "a9e27fe863274d19bd2c795b28943d8e";
 
+import LottieView from "lottie-react-native";
+import loadingAnim from "../assets/loading.json"; // tu animación
+
 export default function AddGameScreen({ navigation }) {
   const [gameName, setGameName] = useState("");
   const [estado, setEstado] = useState("pendiente");
@@ -40,6 +43,7 @@ export default function AddGameScreen({ navigation }) {
   const [suggestions, setSuggestions] = useState([]);
   const [plataformas, setPlataformas] = useState([]); // 🆕
   const [selectedGame, setSelectedGame] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const onChangeGameName = (text) => {
     setGameName(text);
@@ -99,6 +103,8 @@ export default function AddGameScreen({ navigation }) {
       return;
     }
 
+    setSaving(true); // 🔹 empieza animación de carga
+
     try {
       const storedGames = await AsyncStorage.getItem(STORAGE_KEY);
       const games = storedGames ? JSON.parse(storedGames) : [];
@@ -109,6 +115,7 @@ export default function AddGameScreen({ navigation }) {
       );
 
       if (alreadyExists) {
+        setSaving(false); // 🔹 detener animación
         Alert.alert("Aviso", "Este juego ya está en tu lista");
         return; // 🚫 no guardamos nada
       }
@@ -126,6 +133,7 @@ export default function AddGameScreen({ navigation }) {
 
       setGameName("");
       setPlataformas([]);
+      setSaving(false); // 🔹 detener animación
       navigation.goBack();
     } catch (e) {
       console.error("Error guardando juego:", e);
@@ -170,6 +178,32 @@ export default function AddGameScreen({ navigation }) {
       <View style={styles.saveButtonContainer}>
         <MyButton title="Guardar" onPress={saveGame} />
       </View>
+
+      {saving && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255,255,255,0.8)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <LottieView
+            source={loadingAnim}
+            autoPlay
+            loop
+            style={{ width: 150, height: 150 }}
+          />
+          <Text style={{ marginTop: 16, fontSize: 16 }}>
+            Guardando juego...
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
