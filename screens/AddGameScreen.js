@@ -35,6 +35,9 @@ const RAWG_API_KEY = "a9e27fe863274d19bd2c795b28943d8e";
 import LottieView from "lottie-react-native";
 import loadingAnim from "../assets/loading.json"; // tu animación
 
+import AdInterstitial from "../banners/AdInterstitialMock"; // luego cambias por el real
+const COUNTER_KEY = "@mi-lista-gamer/adCounter";
+
 export default function AddGameScreen({ navigation }) {
   const [gameName, setGameName] = useState("");
   const [estado, setEstado] = useState("pendiente");
@@ -44,6 +47,8 @@ export default function AddGameScreen({ navigation }) {
   const [plataformas, setPlataformas] = useState([]); // 🆕
   const [selectedGame, setSelectedGame] = useState(null);
   const [saving, setSaving] = useState(false);
+  const interstitialRef = React.useRef(null);
+  const [showingAd, setShowingAd] = useState(false);
 
   const onChangeGameName = (text) => {
     setGameName(text);
@@ -75,11 +80,22 @@ export default function AddGameScreen({ navigation }) {
 
         if (data.results && data.results.length > 0) {
           // Guardamos hasta 3 sugerencias
-          const top3 = data.results.slice(0, 3);
+          const top3 = data.results.slice(0, 3).map((item) => {
+            // Revisamos si la portada existe y no es solo captura de pantalla
+            const hasCover =
+              item.background_image &&
+              !item.background_image.includes("screenshot");
+            return {
+              ...item,
+              safe_cover: hasCover ? item.background_image : null,
+            };
+          });
+
           setSuggestions(top3);
 
-          // También asignamos la carátula de la primera
-          setCaratula(top3[0].background_image || "");
+          // También asignamos la carátula de la primera con portada válida
+          const firstValid = top3.find((g) => g.safe_cover);
+          setCaratula(firstValid ? firstValid.safe_cover : "");
         } else {
           setSuggestions([]);
           setCaratula("");
@@ -131,6 +147,28 @@ export default function AddGameScreen({ navigation }) {
       games.push(newGame);
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(games));
 
+      // 🔹 Contador de anuncios
+      let counter = parseInt(
+        (await AsyncStorage.getItem(COUNTER_KEY)) || "0",
+        10
+      );
+      counter++;
+      console.log("contador: " + counter);
+      if (counter >= 5) {
+        counter = 0; // reinicia contador
+        console.log("➡️ Mostrando interstitial...");
+        setSaving(false); // detenemos animación de guardar antes del anuncio
+
+        // mostramos el interstitial y esperamos a que se cierre
+        interstitialRef.current?.showAd(() => {
+          navigation.goBack();
+        });
+
+        await AsyncStorage.setItem(COUNTER_KEY, counter.toString());
+        return; // salimos para no ejecutar navigation.goBack() inmediatamente
+      }
+      await AsyncStorage.setItem(COUNTER_KEY, counter.toString());
+
       setGameName("");
       setPlataformas([]);
       setSaving(false); // 🔹 detener animación
@@ -143,6 +181,7 @@ export default function AddGameScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
+      <AdInterstitial ref={interstitialRef} />
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"
@@ -156,15 +195,31 @@ export default function AddGameScreen({ navigation }) {
             <Text
               key={item.id}
               style={styles.suggestionItem}
-              onPress={() => {
+              onPress={async () => {
                 setGameName(item.name);
-                setCaratula(item.background_image || "");
                 setEstado("pendiente");
                 setSuggestions([]);
                 setPlataformas(
                   item.platforms?.map((p) => p.platform.slug) || []
                 );
-                setSelectedGame(item); // anclamos la selección
+                setSelectedGame(item);
+
+                try {
+                  const detailsRes = await fetch(
+                    `https://api.rawg.io/api/games/${item.id}?key=${RAWG_API_KEY}`
+                  );
+                  const detailsData = await detailsRes.json();
+
+                  const cover =
+                    detailsData.background_image ||
+                    detailsData.background_image_additional ||
+                    "";
+
+                  setCaratula(cover);
+                } catch (err) {
+                  console.error("Error cargando detalles del juego:", err);
+                  setCaratula(item.background_image || ""); // fallback
+                }
               }}
             >
               {item.name}
