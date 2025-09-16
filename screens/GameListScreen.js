@@ -19,6 +19,7 @@ import MyButton from "../components/MyButton.js"; // ajusta la ruta si es distin
 
 //import AdBanner from "../banners/AdBanner.js";
 import AdBanner from "../banners/AdBannerPlaceholder.js";
+
 //import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
 import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
 

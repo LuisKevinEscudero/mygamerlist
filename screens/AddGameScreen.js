@@ -27,6 +27,9 @@ import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
 //import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
 import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
 
+import AdInterstitial from "../banners/AdInterstitialMock"; // luego cambias por el real
+//import AdInterstitial from "../banners/AdInterstitial.js"; // luego cambias por el real
+
 import { ADS } from "../utils/adConstants.js";
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
@@ -35,7 +38,6 @@ const RAWG_API_KEY = "a9e27fe863274d19bd2c795b28943d8e";
 import LottieView from "lottie-react-native";
 import loadingAnim from "../assets/loading.json"; // tu animación
 
-import AdInterstitial from "../banners/AdInterstitialMock"; // luego cambias por el real
 const COUNTER_KEY = "@mi-lista-gamer/adCounter";
 
 export default function AddGameScreen({ navigation }) {
@@ -160,9 +162,13 @@ export default function AddGameScreen({ navigation }) {
         setSaving(false); // detenemos animación de guardar antes del anuncio
 
         // mostramos el interstitial y esperamos a que se cierre
-        interstitialRef.current?.showAd(() => {
-          navigation.goBack();
-        });
+        if (interstitialRef.current) {
+          interstitialRef.current.showAd(() => {
+            navigation.goBack();
+          });
+        } else {
+          navigation.goBack(); // <--- añade esto
+        }
 
         await AsyncStorage.setItem(COUNTER_KEY, counter.toString());
         return; // salimos para no ejecutar navigation.goBack() inmediatamente
@@ -181,7 +187,7 @@ export default function AddGameScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
-      <AdInterstitial ref={interstitialRef} />
+      <AdInterstitial ref={interstitialRef} adUnitID={ADS.BANNER_INTERSTICIAL}/>
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"

@@ -1,4 +1,11 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+// AdInterstitial.js
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { InterstitialAd, AdEventType, TestIds } from "react-native-google-mobile-ads";
 import LottieView from "lottie-react-native";
@@ -8,29 +15,68 @@ const AdInterstitial = forwardRef(({ adUnitID }, ref) => {
   const unitId = adUnitID || TestIds.INTERSTITIAL;
 
   const [loading, setLoading] = useState(true);
-  const [interstitial, setInterstitial] = useState(null);
+  const [loaded, setLoaded] = useState(false);
   const [visible, setVisible] = useState(false);
+
+  const interstitialAdRef = useRef(null);
+  const showRequestedRef = useRef(false);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     const interstitialAd = InterstitialAd.createForAdRequest(unitId, {
       requestNonPersonalizedAdsOnly: false,
     });
-
-    setInterstitial(interstitialAd);
+    interstitialAdRef.current = interstitialAd;
 
     const unsubscribeLoaded = interstitialAd.addAdEventListener(
       AdEventType.LOADED,
       () => {
+        console.log("[AdInterstitial] LOADED");
         setLoading(false);
+        setLoaded(true);
+        // si se pidió mostrar antes de cargarse, mostrar ahora
+        if (showRequestedRef.current) {
+          showRequestedRef.current = false;
+          try {
+            interstitialAdRef.current?.show();
+          } catch (e) {
+            console.warn("[AdInterstitial] show() falló después de LOADED:", e);
+            // fallback será manejado por timeout
+          }
+        }
+      }
+    );
+
+    const unsubscribeError = interstitialAd.addAdEventListener(
+      AdEventType.ERROR,
+      (err) => {
+        console.warn("[AdInterstitial] ERROR:", err);
       }
     );
 
     const unsubscribeClosed = interstitialAd.addAdEventListener(
       AdEventType.CLOSED,
       () => {
-        setVisible(false);      // ocultar overlay
-        interstitialAd.load();  // recargar para próxima vez
-        if (ref.current?._onClose) ref.current._onClose(); // ejecutar callback
+        console.log("[AdInterstitial] CLOSED");
+        setVisible(false);
+        setLoaded(false);
+        // recargar para la próxima vez
+        try {
+          interstitialAdRef.current?.load();
+        } catch (e) {
+          console.warn("[AdInterstitial] load() fallo en CLOSED:", e);
+        }
+        // ejecutar callback si existe
+        if (ref?.current?._onClose) {
+          const cb = ref.current._onClose;
+          ref.current._onClose = null;
+          cb();
+        }
+        // limpiar timeout si quedara
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       }
     );
 
@@ -38,18 +84,67 @@ const AdInterstitial = forwardRef(({ adUnitID }, ref) => {
 
     return () => {
       unsubscribeLoaded();
+      unsubscribeError();
       unsubscribeClosed();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unitId]);
 
+  // showAd recibe un callback que se ejecuta al cerrarse el anuncio
   const showAd = (onClose) => {
-    if (interstitial) {
-      ref.current._onClose = onClose; // guardamos callback
-      setVisible(true);
-      interstitial.show();
+    // si no existe la instancia, fallback inmediato
+    if (!interstitialAdRef.current) {
+      console.log("[AdInterstitial] no hay instancia de ad, fallback");
+      onClose?.();
+      return;
+    }
+
+    // guardamos callback
+    if (ref) ref.current._onClose = onClose;
+
+    // marcar visible (mostrar overlay animación)
+    setVisible(true);
+
+    if (loaded) {
+      // ya cargado: mostrar
+      try {
+        interstitialAdRef.current.show();
+      } catch (e) {
+        console.warn("[AdInterstitial] show() falló:", e);
+        // fallback: llamar al callback después de ocultar
+        setVisible(false);
+        if (ref?.current?._onClose) {
+          const cb = ref.current._onClose;
+          ref.current._onClose = null;
+          cb();
+        } else {
+          onClose?.();
+        }
+      }
     } else {
-      console.log("Interstitial no está listo todavía");
-      onClose?.(); // fallback por si no carga
+      // no cargado todavía: pedir carga y marcar que queremos mostrar
+      showRequestedRef.current = true;
+      try {
+        interstitialAdRef.current.load();
+      } catch (e) {
+        console.warn("[AdInterstitial] load() fallo al intentar cargar antes de showAd:", e);
+      }
+      // fallback timeout: si no carga en X ms, cerramos y ejecutamos callback
+      timeoutRef.current = setTimeout(() => {
+        console.warn("[AdInterstitial] timeout: no cargó el ad, fallback");
+        setVisible(false);
+        if (ref?.current?._onClose) {
+          const cb = ref.current._onClose;
+          ref.current._onClose = null;
+          cb();
+        } else {
+          onClose?.();
+        }
+        showRequestedRef.current = false;
+      }, 8000); // 8 segundos de espera máxima
     }
   };
 
