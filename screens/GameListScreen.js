@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import AdBanner from "../banners/AdBannerPlaceholder.js";
 
 //import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
 import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
+
+//import AdInterstitial from "../banners/AdInterstitial.js"; // ruta a tu componente interstitial
+import AdInterstitial from "../banners/AdInterstitialMock.js"; // ruta a tu componente interstitial
 
 import { ADS } from "../utils/adConstants.js";
 
@@ -57,7 +60,7 @@ const filterMenuBottom = windowHeight * 0.15;
 const shadowOffsetY = windowHeight * 0.002;
 const shadowRadius = windowWidth * 0.01;
 
-export default function GameListScreen({ navigation }) {
+export default function GameListScreen({ navigation, route }) {
   const [games, setGames] = useState([]);
   const [filter, setFilter] = useState("todos");
   const [menuAbiertoId, setMenuAbiertoId] = useState(null);
@@ -69,6 +72,21 @@ export default function GameListScreen({ navigation }) {
   const [activeMenuId, setActiveMenuId] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [buttonHeight, setButtonHeight] = useState(0);
+
+  // 🔹 Nuevo: recibimos el contador que viene desde AddGame
+  const contador = route?.params?.contador || 0;
+
+    // 🔹 Ref para el interstitial
+  const interstitialRef = useRef(null);
+
+  useEffect(() => {
+    // 🔹 Mostrar interstitial solo si es múltiplo de 5 y mayor que 0
+    if (contador > 0 && contador % 5 === 0) {
+      interstitialRef.current?.showAd(() => {
+        console.log("Anuncio cerrado");
+      });
+    }
+  }, [contador]);
 
   const normalizeText = (text) =>
     text
@@ -364,6 +382,9 @@ export default function GameListScreen({ navigation }) {
           <Text style={styles.fabText}>Filtro</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Interstitial overlay */}
+      <AdInterstitial ref={interstitialRef} adUnitID={ADS.INTERSTITIAL} />
     </View>
   );
 }

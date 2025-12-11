@@ -27,9 +27,6 @@ import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
 //import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
 import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
 
-import AdInterstitial from "../banners/AdInterstitialMock"; // luego cambias por el real
-//import AdInterstitial from "../banners/AdInterstitial.js"; // luego cambias por el real
-
 import { ADS } from "../utils/adConstants.js";
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
@@ -49,7 +46,6 @@ export default function AddGameScreen({ navigation }) {
   const [plataformas, setPlataformas] = useState([]); // 🆕
   const [selectedGame, setSelectedGame] = useState(null);
   const [saving, setSaving] = useState(false);
-  const interstitialRef = React.useRef(null);
   const [showingAd, setShowingAd] = useState(false);
 
   const onChangeGameName = (text) => {
@@ -149,36 +145,21 @@ export default function AddGameScreen({ navigation }) {
       games.push(newGame);
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(games));
 
-      // 🔹 Contador de anuncios
+      // incrementa el contador de anuncios
       let counter = parseInt(
         (await AsyncStorage.getItem(COUNTER_KEY)) || "0",
         10
       );
-      counter++;
-      console.log("contador: " + counter);
-      if (counter >= 5) {
-        counter = 0; // reinicia contador
-        console.log("➡️ Mostrando interstitial...");
-        setSaving(false); // detenemos animación de guardar antes del anuncio
+      counter = counter + 1;
 
-        // mostramos el interstitial y esperamos a que se cierre
-        if (interstitialRef.current) {
-          interstitialRef.current.showAd(() => {
-            navigation.goBack();
-          });
-        } else {
-          navigation.goBack(); // <--- añade esto
-        }
-
-        await AsyncStorage.setItem(COUNTER_KEY, counter.toString());
-        return; // salimos para no ejecutar navigation.goBack() inmediatamente
-      }
+      // guarda el contador actualizado
       await AsyncStorage.setItem(COUNTER_KEY, counter.toString());
 
-      setGameName("");
+      // limpiar estado y volver atrás
+      setGameName("");            
       setPlataformas([]);
-      setSaving(false); // 🔹 detener animación
-      navigation.goBack();
+      setSaving(false);
+      navigation.navigate("GameList", { contador: counter });
     } catch (e) {
       console.error("Error guardando juego:", e);
     }
@@ -187,7 +168,7 @@ export default function AddGameScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <AdBannerStatic adUnitID={ADS.BANNER_STATIC} />
-      <AdInterstitial ref={interstitialRef} adUnitID={ADS.BANNER_INTERSTICIAL}/>
+
       <TextInput
         style={styles.input}
         placeholder="Nombre del juego"
