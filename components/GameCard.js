@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 import MyButton from "./MyButton.js";
+import { Image } from "expo-image"; 
 import {
   paddingContainer,
   cardBorderRadius,
@@ -61,10 +62,13 @@ export default function GameCard({
 
       {caratula && (
         <Image
-          source={{ uri: caratula }}
-          style={styles.cover}
-          onLoadEnd={() => setLoading(false)}
+          source={{ uri: caratula }}          // ruta de la imagen
+          style={styles.cover}                // estilos del tamaño
+          contentFit="cover"                  // evita cálculos innecesarios
+          cachePolicy="memory-disk"           // activa la caché completa
+          onLoadEnd={() => setLoading(false)} // quita animación al terminar
         />
+
       )}
 
       {!loading && (
