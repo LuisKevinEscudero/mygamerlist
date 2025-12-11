@@ -3,7 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  Button,
   StyleSheet,
   Alert,
   TouchableOpacity,
@@ -30,7 +29,23 @@ import { ADS } from "../utils/adConstants.js";
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
 
-const windowWidth = Dimensions.get("window").width;
+import {windowWidth,
+windowHeight,
+paddingContainer,
+marginVerticalSection,
+marginBetweenButtons,
+buttonHeight,
+fabSize,
+titleFontSize,
+buttonFontSize,
+filterOptionFontSize,
+filterMenuWidth,
+filterMenuBottom,
+shadowOffsetY,
+shadowRadius
+} from "../utils/constantsLayoutGameScreen.js";
+
+/*const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 // 🔹 Espaciados y márgenes
@@ -59,7 +74,7 @@ const filterMenuBottom = windowHeight * 0.15;
 // 🔹 Sombra / elevación
 const shadowOffsetY = windowHeight * 0.002;
 const shadowRadius = windowWidth * 0.01;
-
+*/
 export default function GameListScreen({ navigation, route }) {
   const [games, setGames] = useState([]);
   const [filter, setFilter] = useState("todos");
