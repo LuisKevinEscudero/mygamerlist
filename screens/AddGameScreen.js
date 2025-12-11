@@ -37,6 +37,10 @@ import loadingAnim from "../assets/loading.json"; // tu animación
 
 const COUNTER_KEY = "@mi-lista-gamer/adCounter";
 
+import { useDebouncedValue } from "../utils/hooks";
+import GameSuggestionItem from "../components/GameSuggestionItem"; // ajusta la ruta si es distinta
+
+
 export default function AddGameScreen({ navigation }) {
   const [gameName, setGameName] = useState("");
   const [estado, setEstado] = useState("pendiente");
@@ -46,7 +50,7 @@ export default function AddGameScreen({ navigation }) {
   const [plataformas, setPlataformas] = useState([]); // 🆕
   const [selectedGame, setSelectedGame] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [showingAd, setShowingAd] = useState(false);
+  const debouncedGameName = useDebouncedValue(gameName, 500);
 
   const onChangeGameName = (text) => {
     setGameName(text);
@@ -59,9 +63,9 @@ export default function AddGameScreen({ navigation }) {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (selectedGame) return; // Si hay juego seleccionado, no buscar
+      if (selectedGame) return;
 
-      if (gameName.trim().length < 3) {
+      if (debouncedGameName.trim().length < 3) {
         setSuggestions([]);
         setCaratula("");
         return;
@@ -70,29 +74,18 @@ export default function AddGameScreen({ navigation }) {
       setLoadingCover(true);
       try {
         const response = await fetch(
-          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(
-            gameName
-          )}`
+          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(debouncedGameName)}`
         );
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-          // Guardamos hasta 3 sugerencias
-          const top3 = data.results.slice(0, 3).map((item) => {
-            // Revisamos si la portada existe y no es solo captura de pantalla
-            const hasCover =
-              item.background_image &&
-              !item.background_image.includes("screenshot");
-            return {
-              ...item,
-              safe_cover: hasCover ? item.background_image : null,
-            };
-          });
+          const top3 = data.results.slice(0, 3).map(item => ({
+            ...item,
+            safe_cover: item.background_image && !item.background_image.includes("screenshot") ? item.background_image : null,
+          }));
 
           setSuggestions(top3);
-
-          // También asignamos la carátula de la primera con portada válida
-          const firstValid = top3.find((g) => g.safe_cover);
+          const firstValid = top3.find(g => g.safe_cover);
           setCaratula(firstValid ? firstValid.safe_cover : "");
         } else {
           setSuggestions([]);
@@ -107,9 +100,9 @@ export default function AddGameScreen({ navigation }) {
       }
     };
 
-    const timeout = setTimeout(fetchSuggestions, 500);
-    return () => clearTimeout(timeout);
-  }, [gameName, selectedGame]);
+    fetchSuggestions();
+  }, [debouncedGameName, selectedGame]);
+
 
   const saveGame = async () => {
     if (!gameName.trim()) {
@@ -178,42 +171,34 @@ export default function AddGameScreen({ navigation }) {
 
       {suggestions.length > 0 && !selectedGame && (
         <View style={[styles.suggestionsContainer, { marginBottom: 20 }]}>
-          {suggestions.map((item) => (
-            <Text
+          {suggestions.map(item => (
+            <GameSuggestionItem
               key={item.id}
-              style={styles.suggestionItem}
-              onPress={async () => {
-                setGameName(item.name);
+              game={item}
+              onSelect={async (game) => {
+                setGameName(game.name);
                 setEstado("pendiente");
                 setSuggestions([]);
-                setPlataformas(
-                  item.platforms?.map((p) => p.platform.slug) || []
-                );
-                setSelectedGame(item);
+                setPlataformas(game.platforms?.map(p => p.platform.slug) || []);
+                setSelectedGame(game);
 
+                // Traer carátula más completa si hace falta
                 try {
-                  const detailsRes = await fetch(
-                    `https://api.rawg.io/api/games/${item.id}?key=${RAWG_API_KEY}`
+                  const res = await fetch(`https://api.rawg.io/api/games/${game.id}?key=${RAWG_API_KEY}`);
+                  const data = await res.json();
+                  setCaratula(
+                    data.background_image || data.background_image_additional || game.safe_cover || ""
                   );
-                  const detailsData = await detailsRes.json();
-
-                  const cover =
-                    detailsData.background_image ||
-                    detailsData.background_image_additional ||
-                    "";
-
-                  setCaratula(cover);
                 } catch (err) {
                   console.error("Error cargando detalles del juego:", err);
-                  setCaratula(item.background_image || ""); // fallback
+                  setCaratula(game.safe_cover || "");
                 }
               }}
-            >
-              {item.name}
-            </Text>
+            />
           ))}
         </View>
       )}
+
 
       {loadingCover && <ActivityIndicator size="small" color="#555" />}
 
