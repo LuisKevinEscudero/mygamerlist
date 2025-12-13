@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -51,6 +51,7 @@ export default function AddGameScreen({ navigation }) {
   const [selectedGame, setSelectedGame] = useState(null);
   const [saving, setSaving] = useState(false);
   const debouncedGameName = useDebouncedValue(gameName, 500);
+  const lastSearchRef = useRef(""); // 🔹 guarda el último término buscado
 
   const onChangeGameName = (text) => {
     setGameName(text);
@@ -65,16 +66,22 @@ export default function AddGameScreen({ navigation }) {
     const fetchSuggestions = async () => {
       if (selectedGame) return;
 
-      if (debouncedGameName.trim().length < 3) {
+      const term = debouncedGameName.trim();
+
+      if (term.length < 3) {
         setSuggestions([]);
-        setCaratula("");
         return;
       }
+
+      // 🔹 si es igual al último término buscado, no hacemos fetch
+      if (term === lastSearchRef.current) return;
+
+      lastSearchRef.current = term; // actualiza el término actual
 
       setLoadingCover(true);
       try {
         const response = await fetch(
-          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(debouncedGameName)}`
+          `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(term)}`
         );
         const data = await response.json();
 
