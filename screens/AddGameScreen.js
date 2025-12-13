@@ -3,10 +3,10 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   ActivityIndicator,
+  FlatList 
 } from "react-native";
 
 import {
@@ -79,14 +79,14 @@ export default function AddGameScreen({ navigation }) {
         const data = await response.json();
 
         if (data.results && data.results.length > 0) {
-          const top3 = data.results.slice(0, 3).map(item => ({
-            ...item,
-            safe_cover: item.background_image && !item.background_image.includes("screenshot") ? item.background_image : null,
-          }));
+          const mappedResults = data.results.map(item => ({
+          ...item, // mantiene todos los datos del juego
+          safe_cover: item.background_image // carátula segura
+        }));
 
-          setSuggestions(top3);
-          const firstValid = top3.find(g => g.safe_cover);
-          setCaratula(firstValid ? firstValid.safe_cover : "");
+        setSuggestions(mappedResults); // guarda todas las sugerencias
+        const firstValid = mappedResults.find(g => g.safe_cover); // primera carátula válida
+        setCaratula(firstValid ? firstValid.safe_cover : "");
         } else {
           setSuggestions([]);
           setCaratula("");
@@ -171,32 +171,42 @@ export default function AddGameScreen({ navigation }) {
 
       {suggestions.length > 0 && !selectedGame && (
         <View style={[styles.suggestionsContainer, { marginBottom: 20 }]}>
-          {suggestions.map(item => (
-            <GameSuggestionItem
-              key={item.id}
-              game={item}
-              onSelect={async (game) => {
-                setGameName(game.name);
-                setEstado("pendiente");
-                setSuggestions([]);
-                setPlataformas(game.platforms?.map(p => p.platform.slug) || []);
-                setSelectedGame(game);
-
-                // Traer carátula más completa si hace falta
-                try {
-                  const res = await fetch(`https://api.rawg.io/api/games/${game.id}?key=${RAWG_API_KEY}`);
-                  const data = await res.json();
-                  setCaratula(
-                    data.background_image || data.background_image_additional || game.safe_cover || ""
+          <FlatList
+            data={suggestions} // lista completa de sugerencias
+            keyExtractor={(item) => item.id.toString()} // clave única
+            keyboardShouldPersistTaps="handled" // permite tocar sin cerrar teclado
+            renderItem={({ item }) => (
+              <GameSuggestionItem
+                game={item}
+                onSelect={async (game) => {
+                  setGameName(game.name); // rellena el input
+                  setEstado("pendiente"); // estado inicial
+                  setSuggestions([]); // oculta la lista
+                  setPlataformas(
+                    game.platforms?.map(p => p.platform.slug) || []
                   );
-                } catch (err) {
-                  console.error("Error cargando detalles del juego:", err);
-                  setCaratula(game.safe_cover || "");
-                }
-              }}
-            />
-          ))}
+                  setSelectedGame(game); // marca como seleccionado
+
+                  try {
+                    const res = await fetch(
+                      `https://api.rawg.io/api/games/${game.id}?key=${RAWG_API_KEY}`
+                    );
+                    const data = await res.json();
+                    setCaratula(
+                      data.background_image ||
+                      data.background_image_additional ||
+                      game.safe_cover ||
+                      ""
+                    );
+                  } catch {
+                    setCaratula(game.safe_cover || "");
+                  }
+                }}
+              />
+            )}
+          />
         </View>
+
       )}
 
 
