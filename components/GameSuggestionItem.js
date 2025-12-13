@@ -1,12 +1,21 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 
 export default function GameSuggestionItem({ game, onSelect }) {
   return (
     <TouchableOpacity style={styles.container} onPress={() => onSelect(game)}>
-      {game.safe_cover && (
-        <Image source={{ uri: game.safe_cover }} style={styles.cover} />
-      )}
+      <Image
+        source={{
+          uri: game.safe_cover
+            ? game.safe_cover
+            : "https://dummyimage.com/50x50/cccccc/ffffff.png&text=?"
+        }}
+        style={styles.cover}
+        contentFit="cover"              // ajusta la imagen sin recálculos
+        cachePolicy="memory-disk"       // caché en memoria y disco
+      />
+
       <View style={styles.info}>
         <Text style={styles.name}>{game.name}</Text>
         {game.platforms && (
