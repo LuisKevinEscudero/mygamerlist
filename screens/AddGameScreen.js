@@ -22,10 +22,10 @@ import {
 } from "../utils/layoutConstants.js";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import MyButton from "../components/MyButton"; // ajusta la ruta si es distinta
+import MyButton from "../components/MyButton";
 
-//import AdBannerStatic from "../banners/AdBannerStatic.js"; // importa el banner real
-import AdBannerStatic from "../banners/AdBannerPlaceholderStatic.js"; // importa el banner real
+import AdBannerStatic from "../banners/AdBannerStatic.js";
+//import AdBannerStatic from "../banners/AdBannerStaticMock.js";
 
 import { ADS } from "../utils/adConstants.js";
 

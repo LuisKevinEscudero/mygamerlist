@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -6,10 +6,21 @@ import GameListScreen from "./screens/GameListScreen";
 import AddGameScreen from "./screens/AddGameScreen";
 import RandomGameScreen from "./screens/RandomGameScreen";
 import LoadingScreen from "./screens/LoadingScreen"; // 👈 añadimos esta
+import mobileAds from "react-native-google-mobile-ads"; // 🔹 importa AdMob
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
+  // 🔹 Inicializa AdMob al arrancar
+  useEffect(() => {
+    mobileAds()
+      .initialize()
+      .then(() => {
+        console.log("AdMob inicializado correctamente");
+      });
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Loading">

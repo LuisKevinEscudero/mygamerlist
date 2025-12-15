@@ -10,7 +10,7 @@ export default function AdBanner({ adUnitID }) {
 
   try {
     return (
-      <View style={{ margin: 8, borderRadius: 12, overflow: "hidden", minHeight: 60 }}>
+      <View style={styles.bannerContainer}>
         {loading && (
           <View style={styles.loadingOverlay}>
             <LottieView
@@ -55,4 +55,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
     backgroundColor: "#fff",
   },
+   bannerContainer: {
+    margin: 8,
+    borderRadius: 12,
+    overflow: "hidden",
+    minHeight: 60,
+    width: "100%",
+  }
 });

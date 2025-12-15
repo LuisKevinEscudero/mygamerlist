@@ -23,6 +23,7 @@ export default function AdBannerStatic({ adUnitID }) {
         alignItems: "center",
         backgroundColor: "#f5f5f5",
         minHeight: 60,
+        width: "100%"
       }}
     >
       {loading && (
