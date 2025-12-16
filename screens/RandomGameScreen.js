@@ -44,9 +44,7 @@ export default function RandomGameScreen({ route, navigation }) {
   const [games, setGames] = useState([]);
   const [randomGame, setRandomGame] = useState(null);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
-  const [selectedPlatform, setSelectedPlatform] = useState(
-    route?.params?.platform || "todas"
-  );
+  const [selectedPlatform, setSelectedPlatform] = useState(route?.params?.platform || "todas");
 
   const loadGames = async () => {
     try {
@@ -76,22 +74,40 @@ export default function RandomGameScreen({ route, navigation }) {
     return uniquePlatforms.sort();
   }, [games]); // Solo se recalcula si cambia la lista de juegos
 
+  const pendingGames = useMemo(() => {
+    // Filtra solo juegos pendientes
+    let result = games.filter((g) => g.estado === "pendiente");
 
-  const pickRandomGame = () => {
-    setShowPlatformMenu(false); // <-- cerrar menú al elegir juego
-    let pendingGames = games.filter((g) => g.estado === "pendiente");
+    // Aplica filtro de plataforma si no es "todas"
     if (selectedPlatform !== "todas") {
-      pendingGames = pendingGames.filter((g) =>
+      result = result.filter((g) =>
         g.plataformas?.includes(selectedPlatform)
       );
     }
+
+    // Devuelve la lista final
+    return result;
+  }, [games, selectedPlatform]); // Solo recalcula cuando cambia algo relevante
+
+  const hasPendingGames = pendingGames.length > 0;
+  const pendingGamesCount = pendingGames.length;
+
+  const pickRandomGame = () => {
+    setShowPlatformMenu(false); // Cierra el menú
+
+    // Si no hay juegos posibles, avisa
     if (pendingGames.length === 0) {
       Alert.alert("No hay juegos pendientes para esta plataforma");
       return;
     }
+
+    // Elige índice aleatorio válido
     const randomIndex = Math.floor(Math.random() * pendingGames.length);
+
+    // Guarda el juego elegido
     setRandomGame(pendingGames[randomIndex]);
   };
+
 
   const formatPlatform = (name) => name.replace(/-/g, " ");
 
@@ -122,12 +138,20 @@ export default function RandomGameScreen({ route, navigation }) {
           <Text>No se ha seleccionado ningún juego todavía.</Text>
         )}
 
+        <Text style={styles.pendingInfo}>
+          {pendingGamesCount > 0
+            ? `${pendingGamesCount} juego${pendingGamesCount > 1 ? "s" : ""} pendiente${pendingGamesCount > 1 ? "s" : ""}`
+            : "No hay juegos pendientes para este filtro"}
+        </Text>
+
         <View style={styles.buttonContainer}>
           <MyButton
             title="Elegir juego aleatorio"
             onPress={pickRandomGame}
             style={styles.button}
+            disabled={!hasPendingGames} // Deshabilita si no hay juegos posibles
           />
+
           <MyButton
             title="Volver"
             onPress={() => {
@@ -282,5 +306,11 @@ const styles = StyleSheet.create({
   platformCellTextActive: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  pendingInfo: {
+    fontSize: smallTextFontSize,
+    color: "#666",
+    marginBottom: marginBetweenButtons,
+    textAlign: "center",
   },
 });
