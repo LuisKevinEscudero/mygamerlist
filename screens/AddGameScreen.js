@@ -24,8 +24,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton";
 
-import AdBannerStatic from "../banners/AdBannerStatic.js";
-//import AdBannerStatic from "../banners/AdBannerStaticMock.js";
+//import AdBannerStatic from "../banners/AdBannerStatic.js";
+import AdBannerStatic from "../banners/AdBannerStaticMock.js";
 
 import { ADS } from "../utils/adConstants.js";
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback,useMemo } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MyButton from "../components/MyButton.js";
 import {
@@ -28,8 +29,8 @@ import {
 
 const STORAGE_KEY = "@mi-lista-gamer/games";
 
-import AdBannerStatic from "../banners/AdBannerStatic.js";
-//import AdBannerStatic from "../banners/AdBannerStaticMock.js";
+//import AdBannerStatic from "../banners/AdBannerStatic.js";
+import AdBannerStatic from "../banners/AdBannerStaticMock.js";
 
 import { ADS } from "../utils/adConstants.js";
 
@@ -56,13 +57,25 @@ export default function RandomGameScreen({ route, navigation }) {
     }
   };
 
-  useEffect(() => {
-    loadGames();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // Se ejecuta cada vez que la pantalla entra en foco
+      loadGames(); // Recarga los juegos desde AsyncStorage
+    }, []) // No depende de nada, la función es estable
+  );
 
-  const availablePlatforms = Array.from(
-    new Set(games.flatMap((g) => g.plataformas || []))
-  ).sort();
+
+  const availablePlatforms = useMemo(() => {
+    // Extrae todas las plataformas de los juegos
+    const allPlatforms = games.flatMap((g) => g.plataformas || []);
+
+    // Elimina duplicados usando Set
+    const uniquePlatforms = Array.from(new Set(allPlatforms));
+
+    // Ordena alfabéticamente para UI consistente
+    return uniquePlatforms.sort();
+  }, [games]); // Solo se recalcula si cambia la lista de juegos
+
 
   const pickRandomGame = () => {
     setShowPlatformMenu(false); // <-- cerrar menú al elegir juego
@@ -145,8 +158,9 @@ export default function RandomGameScreen({ route, navigation }) {
                   selectedPlatform === platform && styles.platformCellActive,
                 ]}
                 onPress={() => {
-                  setSelectedPlatform(platform);
-                  setShowPlatformMenu(false);
+                  setSelectedPlatform(platform); // Cambia el filtro de plataforma
+                  setRandomGame(null);           // Limpia el juego actual (evita incoherencias)
+                  setShowPlatformMenu(false);    // Cierra el menú
                 }}
               >
                 <Text

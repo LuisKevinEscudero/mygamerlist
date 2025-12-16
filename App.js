@@ -6,20 +6,20 @@ import GameListScreen from "./screens/GameListScreen";
 import AddGameScreen from "./screens/AddGameScreen";
 import RandomGameScreen from "./screens/RandomGameScreen";
 import LoadingScreen from "./screens/LoadingScreen"; // 👈 añadimos esta
-import mobileAds from "react-native-google-mobile-ads"; // 🔹 importa AdMob
+//import mobileAds from "react-native-google-mobile-ads"; // 🔹 importa AdMob
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
   // 🔹 Inicializa AdMob al arrancar
-  useEffect(() => {
+  /*useEffect(() => {
     mobileAds()
       .initialize()
       .then(() => {
         console.log("AdMob inicializado correctamente");
       });
-  }, []);
+  }, []);*/
 
   return (
     <NavigationContainer>

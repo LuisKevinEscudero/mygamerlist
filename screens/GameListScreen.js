@@ -15,14 +15,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import GameCard from "../components/GameCard.js"; 
 import MyButton from "../components/MyButton.js"; 
 
-import AdBanner from "../banners/AdBanner.js";
-//import AdBanner from "../banners/AdBannerMock.js.js";
+//import AdBanner from "../banners/AdBanner.js";
+import AdBanner from "../banners/AdBannerMock.js";
 
-import AdBannerStatic from "../banners/AdBannerStatic.js"; 
-//import AdBannerStatic from "../banners/AdBannerStaticMock.js"; 
+//import AdBannerStatic from "../banners/AdBannerStatic.js"; 
+import AdBannerStatic from "../banners/AdBannerStaticMock.js"; 
 
-import AdInterstitial from "../banners/AdInterstitial.js"; 
-//import AdInterstitial from "../banners/AdInterstitialMock.js";
+//import AdInterstitial from "../banners/AdInterstitial.js"; 
+import AdInterstitial from "../banners/AdInterstitialMock.js";
 
 import { ADS } from "../utils/adConstants.js";
 
